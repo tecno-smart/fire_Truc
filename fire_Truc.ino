@@ -36,7 +36,7 @@ uint8_t ON = LOW;
 
 uint8_t OFF = HIGH;
 
-bool msg = true;
+bool msg = false;
 int gas_r = 0;
 void setup() {
   Serial.begin(9600);
@@ -78,9 +78,9 @@ void loop() {
   else if (sens_L == detict && sens_R == detict) {
       digitalWrite(buzzer, HIGH);
     stop();
-      if (msg) {
-      send_message();
-      msg = false;
+      if (!msg) {
+
+      msg = true;
     }
     digitalWrite(pumb, ON);
     for (int i =0 ; i< 180 ; i+=5){
@@ -97,11 +97,12 @@ void loop() {
   if (sens_C == no_detict && sens_R == no_detict && sens_L == no_detict) {
     digitalWrite(buzzer, LOW);
     digitalWrite(pumb, OFF);
-    forward();
-    if (!msg) {
-
-      msg = true;
+    stop();
+       if (msg) {
+      send_message();
+      msg = false;
     }
+ 
   }
 
 }  // end loop
