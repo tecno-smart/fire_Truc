@@ -6,12 +6,12 @@ Servo p_servo;
 #include <SoftwareSerial.h>
 SoftwareSerial gsm(3, 2);
 
-#define en 5   // speed
-#define en2 11   // speed
-#define in1 9  // R
-#define in2 8  // R
-#define in3 7  // L
-#define in4 6  // L
+#define en 5    // speed
+#define en2 11  // speed
+#define in1 9   // R
+#define in2 8   // R
+#define in3 7   // L
+#define in4 6   // L
 #define buzzer 13
 #define pumb 4
 
@@ -26,7 +26,7 @@ int speed = 160;
 
 int sens_R, sens_C, sens_L;
 
-char incom = 'z';
+
 
 uint8_t detict = LOW;
 
@@ -37,7 +37,7 @@ uint8_t ON = LOW;
 uint8_t OFF = HIGH;
 
 bool msg = true;
-int gas_r=0;
+int gas_r = 0;
 void setup() {
   Serial.begin(9600);
   gsm.begin(9600);
@@ -56,52 +56,44 @@ void setup() {
   pinMode(f_L, INPUT);
   pinMode(f_C, INPUT);
   pinMode(f_R, INPUT);
-
-
-
-
 }
 
 
 void loop() {
 
-  
-  
-  read_sens();
-  if (sens_C == detict) {
 
+
+  read_sens();
+
+  
+
+  if (sens_R == detict && sens_L == no_detict) {
+    right();
+      digitalWrite(buzzer, HIGH);
+  }
+  else if (sens_L == detict && sens_R == no_detict) {
+    left();
+      digitalWrite(buzzer, HIGH);
+  }
+  else if (sens_L == detict && sens_R == detict) {
+      digitalWrite(buzzer, HIGH);
     stop();
-    digitalWrite(buzzer, HIGH);
-    p_servo.write(90);
-    digitalWrite(pumb, ON);
-    if (msg) {
+      if (msg) {
       send_message();
       msg = false;
     }
-    delay(1000);
-  }
-  if (sens_R == detict) {
-    stop();
-    p_servo.write(10);
-    digitalWrite(buzzer, HIGH);
     digitalWrite(pumb, ON);
-    if (msg) {
-      send_message();
-      msg = false;
+    for (int i =0 ; i< 180 ; i+=5){
+      p_servo.write(i);
+      delay(10);
     }
-    delay(1000);
-  }
-  if (sens_L == detict) {
-    stop();
-    digitalWrite(buzzer, HIGH);
-    p_servo.write(180);
-    digitalWrite(pumb, ON);
-    if (msg) {
-      send_message();
-      msg = false;
+    for (int i =180 ; i>0 ; i-=5){
+      p_servo.write(i);
+      delay(10);
     }
-    delay(1000);
   }
+
+
   if (sens_C == no_detict && sens_R == no_detict && sens_L == no_detict) {
     digitalWrite(buzzer, LOW);
     digitalWrite(pumb, OFF);
@@ -118,7 +110,6 @@ void read_sens() {
   sens_R = digitalRead(f_R);
   sens_C = digitalRead(f_C);
   sens_L = digitalRead(f_L);
- 
 }
 
 
@@ -172,4 +163,3 @@ void send_message() {
   delay(500);
   gsm.write(26);
 }
-
